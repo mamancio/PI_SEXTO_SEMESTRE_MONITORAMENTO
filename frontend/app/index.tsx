@@ -3,24 +3,29 @@ import {
   View,
   Text,
   StyleSheet,
-  StatusBar
+  StatusBar,
+  ImageBackground
 } from "react-native";
+import "expo-router/entry";
 import { Button } from '../components/Button';
 import { useRouter } from 'expo-router';
-
-import * as Animatable from 'react-native-animatable'
+import * as Animatable from 'react-native-animatable';
 
 export default function Welcome() {
   const router = useRouter();
 
   return (
-    <View style={styles.container}>
-      <StatusBar backgroundColor="#38A69D" barStyle="light-content" />
+    <ImageBackground
+      source={require('../assets/images/fundo.png')} 
+      style={styles.container}
+      resizeMode="cover"
+    >
+      <StatusBar backgroundColor="#00000000" barStyle="light-content" translucent />
 
       <View style={styles.containerLogo}>
         <Animatable.Image
           animation="flipInY"
-          source={require('../assets/images/logo.png')}
+          source={require('../assets/images/fundo2.png')}
           style={{ width: '100%' }}
           resizeMode="contain"
         />
@@ -30,7 +35,7 @@ export default function Welcome() {
         <Text style={styles.title}>Seja Bem vindo</Text>
         <Button title="Login" onPress={() => router.push('/login')} />
       </Animatable.View>
-    </View>
+    </ImageBackground>
   );
 }
 
@@ -41,7 +46,6 @@ const styles = StyleSheet.create({
   },
   containerLogo: {
     flex:2,
-    backgroundColor: '#38a69d',
     justifyContent: 'center',
     alignItems: 'center'
   },

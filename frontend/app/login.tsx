@@ -5,7 +5,8 @@ import {
   StyleSheet,
   StatusBar,
   TextInput,
-  TouchableOpacity
+  TouchableOpacity,
+  ImageBackground,
 } from "react-native";
 import { useRouter } from 'expo-router';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -17,63 +18,74 @@ export default function Welcome() {
   const router = useRouter();
 
   return (
-    <View style={styles.container}>
-      <StatusBar backgroundColor="#38A69D" barStyle="light-content" />
-      
-      <Animatable.View animation="fadeInLeft" delay={500} style={styles.containerHeader}>
-        <Text style={styles.message}>Faça login</Text>
-      </Animatable.View>
+    <ImageBackground
+  source={require('../assets/images/fundo.png')} 
+  style={styles.container}
+  resizeMode="cover"
+>
+  <StatusBar backgroundColor="#00000000" barStyle="light-content" translucent />
 
-      <Animatable.View animation="fadeInUp" delay={500} style={styles.containerform}>
-        
+  <View style={styles.containerLogin}>
+    
+    
+    <Animatable.View animation="fadeInLeft" delay={500} style={styles.containerHeader}>
+      <Text style={styles.message}>Faça login</Text>
+    </Animatable.View>
+
+    
+    <Animatable.View animation="fadeInUp" delay={600} style={styles.containerForm}>
       <Text style={styles.title}>E-mail</Text>
-        <TextInput placeholder="Digite um email..." style={styles.input} />
+      <TextInput placeholder="Digite um email..." style={styles.input} />
 
-        <Text style={styles.title}>Senha</Text>
-        <TextInput placeholder="Digite sua senha" style={styles.input} />
+      <Text style={styles.title}>Senha</Text>
+      <TextInput placeholder="Digite sua senha" style={styles.input} secureTextEntry />
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push('/screens/dashboard')} 
-        >  
-        <Text style={styles.buttonText}>Acessar</Text>              
-        </TouchableOpacity> 
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => router.push('/screens/dashboard')}
+      >
+        <Text style={styles.buttonText}>Acessar</Text>
+      </TouchableOpacity>
+    </Animatable.View>
 
-        <TouchableOpacity
-          style={styles.buttonCadastro}
-          onPress={() => router.push('/cadastro')}
-        >
-          <Text style={styles.buttonCad}>Não tem uma conta? Cadastre-se</Text>
-        </TouchableOpacity>
-
-      </Animatable.View>     
-
+  </View>
+</ImageBackground>
       
-    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#38a69d',
   },
-  containerHeader:{
-    marginTop: '14%',
-    marginBottom: '8%',
-    paddingStart: '5%',
-  },
+containerLogin: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 20,
+  paddingTop: '20%', 
+},
+
+containerHeader: {
+  marginBottom: 20,
+  alignSelf: 'flex-start',
+},
   message:{
     fontSize: 28,
     fontWeight: 'bold',
     color: '#fff'
   },
-  containerform:{
-    backgroundColor: '#fff',
-    flex:1,
-    paddingStart: '5%',
-    paddingEnd: '5%',
-  },
+containerForm: {
+  backgroundColor: '#fff',
+  width: '100%',
+  borderRadius: 12,
+  padding: 20,
+  elevation: 10,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.25,
+  shadowRadius: 3.84,
+},
   title: {
     fontSize: 20,
     marginTop: 28,
@@ -85,7 +97,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
 },
 button: {
-  backgroundColor: '#022601',
+  backgroundColor: '#C0C0C0',
   width: '100%',
   paddingVertical: 5,
   marginTop: 20,
