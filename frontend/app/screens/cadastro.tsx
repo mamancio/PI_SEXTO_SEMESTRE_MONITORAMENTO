@@ -4,23 +4,21 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
-  Platform,
   FlatList,
   Image,
   Dimensions,
+  ScrollView,
 } from 'react-native';
+import Header from '../../components/Header';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+
+const { width, height } = Dimensions.get('window');
 
 export default function CadastroHome() {
   const navigation = useNavigation();
   const router = useRouter();
-
-  const toggleDrawer = () => {
-    navigation.dispatch(DrawerActions.toggleDrawer());
-  };
 
   const [cadastros, setCadastros] = useState([
     { id: '1', foto: null, nome: 'Maria Silva', username: 'maria123', email: 'maria@email.com' },
@@ -28,11 +26,11 @@ export default function CadastroHome() {
   ]);
 
   const irParaCadastro = () => {
-    router.push('/cadastro');
+    router.replace('/cadastro');
   };
 
   const editarCadastro = (id: string) => {
-    router.push(`/cadastro`); 
+    router.push(`/cadastro`);
   };
 
   const excluirCadastro = (id: string) => {
@@ -48,23 +46,23 @@ export default function CadastroHome() {
           <Ionicons name="person-circle-outline" size={40} color="#888" />
         )}
       </View>
-      
+
       <View style={[styles.dataCell, styles.idCell]}>
         <Text style={styles.dataText}>{item.id}</Text>
       </View>
-      
+
       <View style={[styles.dataCell, styles.nomeCell]}>
         <Text style={styles.dataText}>{item.nome}</Text>
       </View>
-      
+
       <View style={[styles.dataCell, styles.usernameCell]}>
         <Text style={styles.dataText}>{item.username}</Text>
       </View>
-      
+
       <View style={[styles.dataCell, styles.emailCell]}>
         <Text style={styles.dataText}>{item.email}</Text>
       </View>
-      
+
       <View style={[styles.dataCell, styles.acoesCell]}>
         <TouchableOpacity onPress={() => editarCadastro(item.id)} style={styles.actionButton}>
           <Ionicons name="create-outline" size={20} color="#2196F3" />
@@ -77,49 +75,44 @@ export default function CadastroHome() {
   );
 
   return (
-    <View style={{ flex: 1 }}>
-      {Platform.OS === 'web' && (
-        <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
-          <Ionicons name="menu" size={28} color="#000" />
-        </TouchableOpacity>
-      )}
+    <View style={styles.screen}>
+      <Header title="Cadastro" />
 
-      <ScrollView horizontal={true} style={styles.scrollContainer}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.headerText}>Cadastros de Pessoas</Text>
+      <View style={styles.content}>
+        <ScrollView horizontal style={{ flex: 1 }}>
+          <View style={styles.tableWrapper}>
+            
+            <View style={styles.headerRow}>
+              <View style={[styles.headerCell, styles.fotoCell]}>
+                <Text style={styles.headerText}>Foto</Text>
+              </View>
+              <View style={[styles.headerCell, styles.idCell]}>
+                <Text style={styles.headerText}>ID</Text>
+              </View>
+              <View style={[styles.headerCell, styles.nomeCell]}>
+                <Text style={styles.headerText}>Nome</Text>
+              </View>
+              <View style={[styles.headerCell, styles.usernameCell]}>
+                <Text style={styles.headerText}>Username</Text>
+              </View>
+              <View style={[styles.headerCell, styles.emailCell]}>
+                <Text style={styles.headerText}>Email</Text>
+              </View>
+              <View style={[styles.headerCell, styles.acoesCell]}>
+                <Text style={styles.headerText}>Ações</Text>
+              </View>
+            </View>
+
+            <FlatList
+              data={cadastros}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              style={styles.flatList}
+              contentContainerStyle={{ paddingBottom: 60 }}
+            />
           </View>
-
-          {/* Cabeçalho da tabela */}
-          <View style={styles.headerRow}>
-            <View style={[styles.headerCell, styles.fotoCell]}>
-              <Text style={styles.headerText}>Foto</Text>
-            </View>
-            <View style={[styles.headerCell, styles.idCell]}>
-              <Text style={styles.headerText}>ID</Text>
-            </View>
-            <View style={[styles.headerCell, styles.nomeCell]}>
-              <Text style={styles.headerText}>Nome</Text>
-            </View>
-            <View style={[styles.headerCell, styles.usernameCell]}>
-              <Text style={styles.headerText}>Username</Text>
-            </View>
-            <View style={[styles.headerCell, styles.emailCell]}>
-              <Text style={styles.headerText}>Email</Text>
-            </View>
-            <View style={[styles.headerCell, styles.acoesCell]}>
-              <Text style={styles.headerText}>Ações</Text>
-            </View>
-          </View>
-
-          <FlatList
-            data={cadastros}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            style={styles.flatList}
-          />
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </View>
 
       <TouchableOpacity style={styles.addButton} onPress={irParaCadastro}>
         <Ionicons name="add-circle" size={60} color="#4CAF50" />
@@ -129,27 +122,18 @@ export default function CadastroHome() {
 }
 
 const styles = StyleSheet.create({
-  scrollContainer: {
+  screen: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
   },
-  container: {
-    minWidth: Dimensions.get('window').width,
-    paddingTop: 60,
-    paddingHorizontal: 16,
+  content: {
+    flex: 1,
   },
-  menuButton: {
-    position: 'absolute',
-    top: 20,
-    right: 20,
-    zIndex: 10,
-  },
-  header: {
-    padding: 16,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
+tableWrapper: {
+  minWidth: width,
+  flexGrow: 1,
+  justifyContent: 'flex-start',
+},
   headerText: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -194,13 +178,18 @@ const styles = StyleSheet.create({
     right: 20,
   },
   flatList: {
-    marginBottom: 20,
+    //flex: 1,
   },
- 
-  fotoCell: { width: 80 },
-  idCell: { width: 60 },
-  nomeCell: { width: 150 },
-  usernameCell: { width: 120 },
-  emailCell: { width: 200 },
-  acoesCell: { width: 100, flexDirection: 'row', justifyContent: 'space-around' },
+
+// Colunas responsivas
+  fotoCell: { flex: 1 },
+  idCell: { flex: 1 },
+  nomeCell: { flex: 2 },
+  usernameCell: { flex: 2 },
+  emailCell: { flex: 1 },
+  acoesCell: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
 });

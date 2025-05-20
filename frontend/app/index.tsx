@@ -40,10 +40,11 @@ export default function Welcome() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#38a69d'
-  },
+container: {
+  flex: 1,
+  width: '100%',
+  height: '100%',
+},
   containerLogo: {
     flex:2,
     justifyContent: 'center',

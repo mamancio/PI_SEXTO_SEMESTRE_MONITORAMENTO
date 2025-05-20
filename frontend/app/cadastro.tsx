@@ -68,10 +68,9 @@ export default function Cadastro() {
     };
 
     if (params.salvarCadastro) {
-      const callback = eval(params.salvarCadastro as string); // CUIDADO: só use isso localmente!
+      const callback = eval(params.salvarCadastro as string); 
       callback(novoCadastro);
     }
-
     router.back();
   };
 
@@ -95,8 +94,8 @@ export default function Cadastro() {
       </TouchableOpacity>
 
       {!modoEdicao && (
-        <TouchableOpacity onPress={() => router.push('/login')} style={styles.voltar}>
-          <Text style={styles.voltarTexto}>Voltar para login</Text>
+        <TouchableOpacity onPress={() => router.push('../screens/dashboard')} style={styles.voltar}>
+          <Text style={styles.voltarTexto}>Cancelar</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -120,10 +119,19 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginBottom: 12
   },
-  uploadText: { color: '#333' },
-  imagem: { width: 100, height: 100, borderRadius: 50, alignSelf: 'center', marginBottom: 12 },
+  uploadText: { 
+    color: '#333'
+  },
+  
+  imagem: { 
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignSelf: 'center',
+    marginBottom: 12
+  },
   button: {
-    backgroundColor: '#38a69d',
+    backgroundColor: '#ADD8E6',
     padding: 12,
     alignItems: 'center',
     borderRadius: 6

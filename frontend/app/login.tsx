@@ -19,51 +19,63 @@ export default function Welcome() {
 
   return (
     <ImageBackground
-  source={require('../assets/images/fundo.png')} 
-  style={styles.container}
-  resizeMode="cover"
->
-  <StatusBar backgroundColor="#00000000" barStyle="light-content" translucent />
+        source={require('../assets/images/fundo.png')} 
+        style={styles.container}
+        resizeMode="cover"
+      >      
 
-  <View style={styles.containerLogin}>
+      <View style={styles.containerLogo}>
+        <Animatable.Image
+          animation="flipInY"
+          source={require('../assets/images/fundo2.png')}
+          style={{ width: '100%' }}
+            resizeMode="contain"
+        />
+      </View>
+
+      <View style={styles.containerLogin}>    
     
-    
-    <Animatable.View animation="fadeInLeft" delay={500} style={styles.containerHeader}>
-      <Text style={styles.message}>Faça login</Text>
-    </Animatable.View>
+        <Animatable.View animation="fadeInLeft" delay={500} style={styles.containerHeader}>
+          <Text style={styles.message}>Faça login</Text>
+        </Animatable.View>
 
-    
-    <Animatable.View animation="fadeInUp" delay={600} style={styles.containerForm}>
-      <Text style={styles.title}>E-mail</Text>
-      <TextInput placeholder="Digite um email..." style={styles.input} />
+      
+        <Animatable.View animation="fadeInUp" delay={600} style={styles.containerForm}>
+          <Text style={styles.title}>E-mail</Text>
+          <TextInput placeholder="Digite um email..." style={styles.input} />
 
-      <Text style={styles.title}>Senha</Text>
-      <TextInput placeholder="Digite sua senha" style={styles.input} secureTextEntry />
+          <Text style={styles.title}>Senha</Text>
+        <TextInput placeholder="Digite sua senha" style={styles.input} secureTextEntry />
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => router.push('/screens/dashboard')}
-      >
-        <Text style={styles.buttonText}>Acessar</Text>
-      </TouchableOpacity>
-    </Animatable.View>
-
-  </View>
-</ImageBackground>
+          <TouchableOpacity
+            style={styles.button}
+          onPress={() => router.push('/screens/dashboard')}
+        >
+            <Text style={styles.buttonText}>Acessar</Text>
+          </TouchableOpacity>
+        </Animatable.View>
+      </View>
+    </ImageBackground>
       
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+container: {
+  flex: 1,
+  width: '100%',
+  height: '100%',
+},
+  containerLogo: {
+    flex:1,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
 containerLogin: {
-  flex: 1,
+  flex: 2,
   justifyContent: 'center',
   alignItems: 'center',
-  paddingHorizontal: 20,
-  paddingTop: '20%', 
+  paddingHorizontal: 20, 
 },
 
 containerHeader: {
