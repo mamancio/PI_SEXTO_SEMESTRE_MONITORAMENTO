@@ -8,6 +8,7 @@ import {
   Image,
   Alert,
 } from "react-native";
+import Header from '../components/Header';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
@@ -76,8 +77,8 @@ export default function Cadastro() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.titulo}>{modoEdicao ? 'Editar Cadastro' : 'Cadastro'}</Text>
-
+      <Header title="Cadastro" />      
+      <View style={styles.textInput}>
       <TextInput placeholder="Nome completo" style={styles.input} value={nome} onChangeText={setNome} />
       <TextInput placeholder="Usuário" style={styles.input} value={usuario} onChangeText={setUsuario} />
       <TextInput placeholder="Email" style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" />
@@ -94,22 +95,33 @@ export default function Cadastro() {
       </TouchableOpacity>
 
       {!modoEdicao && (
-        <TouchableOpacity onPress={() => router.push('../screens/dashboard')} style={styles.voltar}>
+        <TouchableOpacity onPress={() => router.push('../screens/cadastro')} style={styles.voltar}>
           <Text style={styles.voltarTexto}>Cancelar</Text>
         </TouchableOpacity>
       )}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20, flex: 1, backgroundColor: '#fff' },
-  titulo: { fontSize: 28, fontWeight: 'bold', marginBottom: 20 },
-  input: {
-    borderWidth: 1,
+  textInput: {
+    marginTop: 20,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    width: '80%',
+    alignItems: 'center',
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',    
+  },
+  input: {    
+    width: '80%',
+    borderWidth: 2,
     borderColor: '#ccc',
     borderRadius: 6,
-    padding: 10,
+    padding: 6,
     marginBottom: 12,
   },
   uploadBtn: {
@@ -136,7 +148,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 6
   },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  voltar: { marginTop: 20, alignItems: 'center' },
-  voltarTexto: { color: '#999' }
+  buttonText: { 
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold'
+  },
+  voltar: { 
+    marginTop: 20,
+    alignItems: 'center'
+  },
+  voltarTexto: {
+    color: '#999'
+  }
 });

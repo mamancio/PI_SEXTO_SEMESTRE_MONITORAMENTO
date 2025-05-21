@@ -76,7 +76,7 @@ export default function CadastroHome() {
 
   return (
     <View style={styles.screen}>
-      <Header title="Cadastro" />
+      <Header title="Usuários" />
 
       <View style={styles.content}>
         <ScrollView horizontal style={{ flex: 1 }}>
