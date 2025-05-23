@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import Header from '../components/Header';
 import * as ImagePicker from 'expo-image-picker';
+import { Picker } from '@react-native-picker/picker';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
 export default function Cadastro() {
@@ -25,6 +26,8 @@ export default function Cadastro() {
 
   const [modoEdicao, setModoEdicao] = useState(false);
   const [id, setId] = useState<string | null>(null);
+
+  const [perfil, setPerfil] = useState('padrao');
 
   useEffect(() => {
     if (params && params.pessoa) {
@@ -66,6 +69,7 @@ export default function Cadastro() {
       email,
       password: senha,
       foto: imagem,
+      perfil,
     };
 
     if (params.salvarCadastro) {
@@ -85,10 +89,23 @@ export default function Cadastro() {
       <TextInput placeholder="Senha" style={styles.input} value={senha} onChangeText={setSenha} secureTextEntry />
       <TextInput placeholder="Confirmar senha" style={styles.input} value={confirmarSenha} onChangeText={setConfirmarSenha} secureTextEntry />
 
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={perfil}
+          onValueChange={(itemValue) => setPerfil(itemValue)}
+          style={styles.picker}
+        >
+          <Picker.Item label="Padrão" value="padrao" />
+          <Picker.Item label="Administrador" value="admin" />
+        </Picker>
+      </View>
+
       <TouchableOpacity style={styles.uploadBtn} onPress={escolherImagem}>
         <Text style={styles.uploadText}>Selecionar imagem</Text>
       </TouchableOpacity>
       {imagem && <Image source={{ uri: imagem }} style={styles.imagem} />}
+
+      
 
       <TouchableOpacity style={styles.button} onPress={handleSalvar}>
         <Text style={styles.buttonText}>{modoEdicao ? 'Salvar Alterações' : 'Cadastrar'}</Text>
@@ -159,5 +176,17 @@ const styles = StyleSheet.create({
   },
   voltarTexto: {
     color: '#999'
-  }
+  },
+  pickerContainer: {
+    width: '80%',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    marginBottom: 10,
+    overflow: 'hidden',
+  },
+  picker: {
+    width: '100%',
+    height: 40,
+  },
 });
