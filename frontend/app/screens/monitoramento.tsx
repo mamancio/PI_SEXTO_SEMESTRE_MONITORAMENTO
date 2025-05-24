@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import Header from '../../components/Header';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 import CameraWrapper from '../../components/CameraWrapper';
@@ -15,10 +15,12 @@ export default function Monitoramento() {
     <View style={{ flex: 1 }}>
       <Header title="Monitoramento" />
 
-      <View style={styles.container}>
+      {/* Área fixa da seleção de câmeras */}
+      <View style={styles.selectionFixedContainer}>
         <CameraWrapper />
-      </View>
+      </View>      
 
+      {/* Resumo embaixo (ou coloque onde desejar) */}
       <View style={styles.summaryContainer}>
         <View style={[styles.card, styles.blueCard]}>
           <Text style={styles.cardText}>28 Quantidade de Pessoa Identificadas</Text>
@@ -32,11 +34,14 @@ export default function Monitoramento() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  selectionFixedContainer: {
+    position: 'sticky',  // para web
+    top: 0,
+    zIndex: 100,
     backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    justifyContent: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
   },
   summaryContainer: {
     flexDirection: 'row',

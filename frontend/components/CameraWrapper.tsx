@@ -1,115 +1,146 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Platform, StyleSheet } from 'react-native';
 
+type CameraStream = {
+  deviceId: string;
+  stream: MediaStream;
+};
+
 export default function CameraWrapper() {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [nativeCamera, setNativeCamera] = useState<any>(null);
-  const [device, setDevice] = useState<any>(null);
+  const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
+  const [activeCameras, setActiveCameras] = useState<CameraStream[]>([]);
 
   useEffect(() => {
-    (async () => {
-      if (Platform.OS === 'web') {
+    if (Platform.OS === 'web') {
+      (async () => {
         setHasPermission(true);
-      } else {
-        // Importação condicional para evitar erro no Web
-        const Camera = require('react-native-vision-camera').Camera;
-        const useCameraDevices = require('react-native-vision-camera').useCameraDevices;
 
-        const status = await Camera.requestCameraPermission();
-        setHasPermission(status === 'authorized');
-
-        const devices = useCameraDevices();
-        setDevice(devices.back);
-        setNativeCamera(Camera);
-      }
-    })();
+        try {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const videoDevices = devices.filter((d) => d.kind === 'videoinput');
+          setCameras(videoDevices);
+        } catch (error) {
+          console.error('Erro ao listar dispositivos de vídeo:', error);
+        }
+      })();
+    }
   }, []);
 
-  useEffect(() => {
-    if (Platform.OS === 'web' && hasPermission && !streamRef.current) {
-      navigator.mediaDevices
-        .getUserMedia({ video: true })
-        .then((mediaStream) => {
-          if (videoRef.current) {
-            videoRef.current.srcObject = mediaStream;
-            videoRef.current.muted = true;
-            videoRef.current.play();
-          }
-          streamRef.current = mediaStream;
-        })
-        .catch((err) => {
-          console.warn('Erro ao ativar câmera (web):', err);
-          alert('Erro ao acessar a câmera. Verifique as permissões no navegador.');
-        });
-    }
-
-    return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-        streamRef.current = null;
+  // Ativa ou desativa câmera
+  const toggleCamera = async (deviceId: string, checked: boolean) => {
+    if (checked) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId } });
+        setActiveCameras((prev) => [...prev, { deviceId, stream }]);
+      } catch (err) {
+        alert('Erro ao acessar a câmera: ' + err);
       }
-    };
-  }, [hasPermission]);
+    } else {
+      // Parar e remover stream da câmera desativada
+      setActiveCameras((prev) => {
+        const camToRemove = prev.find(c => c.deviceId === deviceId);
+        if (camToRemove) {
+          camToRemove.stream.getTracks().forEach(track => track.stop());
+        }
+        return prev.filter(c => c.deviceId !== deviceId);
+      });
+    }
+  };
+
+  if (Platform.OS !== 'web') {
+    return <Text>Essa versão é para web apenas</Text>;
+  }
 
   if (hasPermission === false) {
     return <Text style={styles.permissionText}>Permissão da câmera foi negada.</Text>;
   }
 
-  if (Platform.OS === 'web' && hasPermission) {
-    return (
-      <View style={styles.videoContainer}>
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          style={styles.video}
-        />
-      </View>
-    );
-  }
+  return (
+    <View style={styles.container}>
+      
+      <View style={styles.cameraSelectionContainer}>
+        <Text style={styles.selectionTitle}>Selecione as câmeras para ativar:</Text>
 
-  if (Platform.OS !== 'web' && hasPermission && nativeCamera && device) {
-    const Camera = nativeCamera;
-    return (
-      <View style={styles.videoContainer}>
-        <Camera
-          style={styles.camera}
-          device={device}
-          isActive={true}
-        />
-      </View>
-    );
-  }
+        {cameras.map((cam) => {
+          const isChecked = activeCameras.some((c) => c.deviceId === cam.deviceId);
+          return (
+            <View key={cam.deviceId} style={styles.checkboxContainer}>
+              <input
+                type="checkbox"
+                checked={isChecked}
+                onChange={(e) => toggleCamera(cam.deviceId, e.target.checked)}
+              />
+              <label style={{ marginLeft: 8 }}>{cam.label || `Câmera ${cam.deviceId}`}</label>
+            </View>
+          );
+        })}
+      </View>    
 
-  return null;
+      <View style={styles.videosContainer}>
+        {activeCameras.map(({ deviceId, stream }) => (
+          <video
+            key={deviceId}
+            autoPlay
+            playsInline
+            muted
+            style={styles.video}
+            ref={(video) => {
+              if (video && video.srcObject !== stream) {
+                video.srcObject = stream;
+              }
+            }}
+          />
+        ))}
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-  videoContainer: {
-    marginTop: 20,
-    alignItems: 'center',
+  container: {
+    padding: 20,
   },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  videosContainer: {
+    marginTop: 20,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    gap: 20, 
+  } as any,
+
   video: {
-    width: '100%',
-    maxWidth: 800,
-    height: 480,
+    width: 'auto',
+    height: 240,
     borderRadius: 10,
     border: '2px solid #3498db',
     backgroundColor: '#000',
     objectFit: 'cover',
   } as any,
-  camera: {
-    width: '100%',
-    height: 480,
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
   permissionText: {
     color: '#f00',
     textAlign: 'center',
     fontSize: 16,
     marginTop: 40,
+  },
+  cameraSelectionContainer: {
+    position: 'sticky', 
+    top: 0,
+    backgroundColor: '#fff',
+    padding: 16,
+    zIndex: 100,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    textAlign: 'center',
+  },
+  selectionTitle: {
+    fontWeight: 'bold',
+    marginBottom: 10,
+    fontSize: 16,
   },
 });
