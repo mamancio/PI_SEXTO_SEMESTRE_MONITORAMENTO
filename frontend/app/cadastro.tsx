@@ -12,13 +12,15 @@ import Header from '../components/Header';
 import * as ImagePicker from 'expo-image-picker';
 import { Picker } from '@react-native-picker/picker';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import bcrypt from 'bcryptjs';
 
 export default function Cadastro() {
   const router = useRouter();
   const params = useLocalSearchParams();
 
   const [nome, setNome] = useState('');
-  const [usuario, setUsuario] = useState('');
+  const [cpf, setCpf] = useState('');
+  const [dataNascimento, setDataNascimento] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
@@ -26,14 +28,14 @@ export default function Cadastro() {
 
   const [modoEdicao, setModoEdicao] = useState(false);
   const [id, setId] = useState<string | null>(null);
-
   const [perfil, setPerfil] = useState('padrao');
 
   useEffect(() => {
     if (params && params.pessoa) {
       const pessoa = JSON.parse(params.pessoa as string);
       setNome(pessoa.nome);
-      setUsuario(pessoa.username);
+      setCpf(pessoa.cpf);
+      setDataNascimento(pessoa.dataNascimento);
       setEmail(pessoa.email);
       setSenha(pessoa.password);
       setConfirmarSenha(pessoa.password);
@@ -56,66 +58,77 @@ export default function Cadastro() {
     }
   };
 
-  const handleSalvar = () => {
+  const handleSalvar = async () => {
     if (senha !== confirmarSenha) {
       Alert.alert('Erro', 'As senhas não coincidem.');
       return;
     }
 
-    const novoCadastro = {
-      id: id || Date.now().toString(),
-      nome,
-      username: usuario,
-      email,
-      password: senha,
-      foto: imagem,
-      perfil,
-    };
+    try {
+      // Criptografar email, senha e CPF
+      const salt = bcrypt.genSaltSync(10);
+      const senhaHash = bcrypt.hashSync(senha, salt);
+      const emailHash = bcrypt.hashSync(email, salt);
+      const cpfHash = bcrypt.hashSync(cpf, salt);
 
-    if (params.salvarCadastro) {
-      const callback = eval(params.salvarCadastro as string); 
-      callback(novoCadastro);
+      const novoCadastro = {
+        id: id || Date.now().toString(),
+        nome,
+        cpf: cpfHash,
+        dataNascimento,
+        email: emailHash,
+        password: senhaHash,
+        foto: imagem,
+        perfil,
+      };
+
+      if (params.salvarCadastro) {
+        const callback = eval(params.salvarCadastro as string);
+        callback(novoCadastro);
+      }
+
+      router.back();
+    } catch (error) {
+      Alert.alert("Erro ao salvar", "Houve um problema ao processar os dados.");
     }
-    router.back();
   };
 
   return (
     <View style={styles.container}>
-      <Header title="Cadastro" />      
+      <Header title="Cadastro" />
       <View style={styles.textInput}>
-      <TextInput placeholder="Nome completo" style={styles.input} value={nome} onChangeText={setNome} />
-      <TextInput placeholder="Usuário" style={styles.input} value={usuario} onChangeText={setUsuario} />
-      <TextInput placeholder="Email" style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" />
-      <TextInput placeholder="Senha" style={styles.input} value={senha} onChangeText={setSenha} secureTextEntry />
-      <TextInput placeholder="Confirmar senha" style={styles.input} value={confirmarSenha} onChangeText={setConfirmarSenha} secureTextEntry />
+        <TextInput placeholder="Nome completo" style={styles.input} value={nome} onChangeText={setNome} />
+        <TextInput placeholder="CPF" style={styles.input} value={cpf} onChangeText={setCpf} keyboardType="numeric" maxLength={14} />
+        <TextInput placeholder="Data de nascimento (dd/mm/aaaa)" style={styles.input} value={dataNascimento} onChangeText={setDataNascimento} />
+        <TextInput placeholder="Email" style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" />
+        <TextInput placeholder="Senha" style={styles.input} value={senha} onChangeText={setSenha} secureTextEntry />
+        <TextInput placeholder="Confirmar senha" style={styles.input} value={confirmarSenha} onChangeText={setConfirmarSenha} secureTextEntry />
 
-      <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={perfil}
-          onValueChange={(itemValue) => setPerfil(itemValue)}
-          style={styles.picker}
-        >
-          <Picker.Item label="Padrão" value="padrao" />
-          <Picker.Item label="Administrador" value="admin" />
-        </Picker>
-      </View>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={perfil}
+            onValueChange={(itemValue) => setPerfil(itemValue)}
+            style={styles.picker}
+          >
+            <Picker.Item label="Padrão" value="padrao" />
+            <Picker.Item label="Administrador" value="admin" />
+          </Picker>
+        </View>
 
-      <TouchableOpacity style={styles.uploadBtn} onPress={escolherImagem}>
-        <Text style={styles.uploadText}>Selecionar imagem</Text>
-      </TouchableOpacity>
-      {imagem && <Image source={{ uri: imagem }} style={styles.imagem} />}
-
-      
-
-      <TouchableOpacity style={styles.button} onPress={handleSalvar}>
-        <Text style={styles.buttonText}>{modoEdicao ? 'Salvar Alterações' : 'Cadastrar'}</Text>
-      </TouchableOpacity>
-
-      {!modoEdicao && (
-        <TouchableOpacity onPress={() => router.push('../screens/cadastro')} style={styles.voltar}>
-          <Text style={styles.voltarTexto}>Cancelar</Text>
+        <TouchableOpacity style={styles.uploadBtn} onPress={escolherImagem}>
+          <Text style={styles.uploadText}>Selecionar imagem</Text>
         </TouchableOpacity>
-      )}
+        {imagem && <Image source={{ uri: imagem }} style={styles.imagem} />}
+
+        <TouchableOpacity style={styles.button} onPress={handleSalvar}>
+          <Text style={styles.buttonText}>{modoEdicao ? 'Salvar Alterações' : 'Cadastrar'}</Text>
+        </TouchableOpacity>
+
+        {!modoEdicao && (
+          <TouchableOpacity onPress={() => router.push('../screens/cadastro')} style={styles.voltar}>
+            <Text style={styles.voltarTexto}>Cancelar</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -131,9 +144,9 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',    
+    backgroundColor: '#fff',
   },
-  input: {    
+  input: {
     width: '80%',
     borderWidth: 2,
     borderColor: '#ccc',
@@ -148,11 +161,10 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginBottom: 12
   },
-  uploadText: { 
+  uploadText: {
     color: '#333'
   },
-  
-  imagem: { 
+  imagem: {
     width: 100,
     height: 100,
     borderRadius: 50,
@@ -165,12 +177,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 6
   },
-  buttonText: { 
+  buttonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold'
   },
-  voltar: { 
+  voltar: {
     marginTop: 20,
     alignItems: 'center'
   },
