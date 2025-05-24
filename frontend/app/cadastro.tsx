@@ -20,6 +20,7 @@ export default function Cadastro() {
   const [nome, setNome] = useState('');
   const [cpf, setCpf] = useState('');
   const [email, setEmail] = useState('');
+  const [emailValido, setEmailValido] = useState(true);
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [dataNascimento, setDataNascimento] = useState('');
@@ -52,6 +53,20 @@ export default function Cadastro() {
       .replace(/(\d{3})(\d)/, '$1.$2')
       .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
   };
+  const aplicarMascaraData = (data: string): string => {
+  data = data.replace(/\D/g, '').slice(0, 8); // Só números, até 8 dígitos
+  if (data.length >= 5) {
+    return data.replace(/(\d{2})(\d{2})(\d{1,4})/, '$1/$2/$3');
+  } else if (data.length >= 3) {
+    return data.replace(/(\d{2})(\d{1,2})/, '$1/$2');
+  } else {
+    return data;
+  }
+};
+const validarEmail = (email: string): boolean => {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+};
 
   const escolherImagem = async () => {
     const resultado = await ImagePicker.launchImageLibraryAsync({
@@ -102,8 +117,25 @@ export default function Cadastro() {
           onChangeText={(text) => setCpf(aplicarMascaraCPF(text))}
           keyboardType="numeric"
         />
-        <TextInput placeholder="Data de nascimento (dd/mm/aaaa)" style={styles.input} value={dataNascimento} onChangeText={setDataNascimento} keyboardType="numeric" />
-        <TextInput placeholder="Email" style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" />
+        <TextInput
+          placeholder="Data de nascimento (dd/mm/aaaa)"
+          style={styles.input}
+          value={dataNascimento}
+          onChangeText={(text) => setDataNascimento(aplicarMascaraData(text))}
+          keyboardType="numeric"
+        />
+        <TextInput
+          placeholder="Email"
+          style={[styles.input, !emailValido && { borderColor: 'red' }]}
+          value={email}
+          onChangeText={(text) => {
+            setEmail(text);
+            setEmailValido(validarEmail(text));
+          }}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        {!emailValido && <Text style={{ color: 'red' }}>E-mail inválido</Text>}
         <TextInput placeholder="Senha" style={styles.input} value={senha} onChangeText={setSenha} secureTextEntry />
         <TextInput placeholder="Confirmar senha" style={styles.input} value={confirmarSenha} onChangeText={setConfirmarSenha} secureTextEntry />
 
