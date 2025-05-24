@@ -12,7 +12,6 @@ import Header from '../components/Header';
 import * as ImagePicker from 'expo-image-picker';
 import { Picker } from '@react-native-picker/picker';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import bcrypt from 'bcryptjs';
 
 export default function Cadastro() {
   const router = useRouter();
@@ -20,14 +19,15 @@ export default function Cadastro() {
 
   const [nome, setNome] = useState('');
   const [cpf, setCpf] = useState('');
-  const [dataNascimento, setDataNascimento] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
+  const [dataNascimento, setDataNascimento] = useState('');
   const [imagem, setImagem] = useState<string | null>(null);
 
   const [modoEdicao, setModoEdicao] = useState(false);
   const [id, setId] = useState<string | null>(null);
+
   const [perfil, setPerfil] = useState('padrao');
 
   useEffect(() => {
@@ -35,15 +35,23 @@ export default function Cadastro() {
       const pessoa = JSON.parse(params.pessoa as string);
       setNome(pessoa.nome);
       setCpf(pessoa.cpf);
-      setDataNascimento(pessoa.dataNascimento);
       setEmail(pessoa.email);
       setSenha(pessoa.password);
       setConfirmarSenha(pessoa.password);
+      setDataNascimento(pessoa.dataNascimento);
       setImagem(pessoa.foto || null);
       setId(pessoa.id);
       setModoEdicao(true);
     }
   }, [params]);
+
+  const aplicarMascaraCPF = (cpf: string): string => {
+    cpf = cpf.replace(/\D/g, '').slice(0, 11);
+    return cpf
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  };
 
   const escolherImagem = async () => {
     const resultado = await ImagePicker.launchImageLibraryAsync({
@@ -58,39 +66,28 @@ export default function Cadastro() {
     }
   };
 
-  const handleSalvar = async () => {
+  const handleSalvar = () => {
     if (senha !== confirmarSenha) {
       Alert.alert('Erro', 'As senhas não coincidem.');
       return;
     }
 
-    try {
-      // Criptografar email, senha e CPF
-      const salt = bcrypt.genSaltSync(10);
-      const senhaHash = bcrypt.hashSync(senha, salt);
-      const emailHash = bcrypt.hashSync(email, salt);
-      const cpfHash = bcrypt.hashSync(cpf, salt);
+    const novoCadastro = {
+      id: id || Date.now().toString(),
+      nome,
+      cpf,
+      email,
+      password: senha,
+      dataNascimento,
+      foto: imagem,
+      perfil,
+    };
 
-      const novoCadastro = {
-        id: id || Date.now().toString(),
-        nome,
-        cpf: cpfHash,
-        dataNascimento,
-        email: emailHash,
-        password: senhaHash,
-        foto: imagem,
-        perfil,
-      };
-
-      if (params.salvarCadastro) {
-        const callback = eval(params.salvarCadastro as string);
-        callback(novoCadastro);
-      }
-
-      router.back();
-    } catch (error) {
-      Alert.alert("Erro ao salvar", "Houve um problema ao processar os dados.");
+    if (params.salvarCadastro) {
+      const callback = eval(params.salvarCadastro as string);
+      callback(novoCadastro);
     }
+    router.back();
   };
 
   return (
@@ -98,8 +95,14 @@ export default function Cadastro() {
       <Header title="Cadastro" />
       <View style={styles.textInput}>
         <TextInput placeholder="Nome completo" style={styles.input} value={nome} onChangeText={setNome} />
-        <TextInput placeholder="CPF" style={styles.input} value={cpf} onChangeText={setCpf} keyboardType="numeric" maxLength={14} />
-        <TextInput placeholder="Data de nascimento (dd/mm/aaaa)" style={styles.input} value={dataNascimento} onChangeText={setDataNascimento} />
+        <TextInput
+          placeholder="CPF"
+          style={styles.input}
+          value={cpf}
+          onChangeText={(text) => setCpf(aplicarMascaraCPF(text))}
+          keyboardType="numeric"
+        />
+        <TextInput placeholder="Data de nascimento (dd/mm/aaaa)" style={styles.input} value={dataNascimento} onChangeText={setDataNascimento} keyboardType="numeric" />
         <TextInput placeholder="Email" style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" />
         <TextInput placeholder="Senha" style={styles.input} value={senha} onChangeText={setSenha} secureTextEntry />
         <TextInput placeholder="Confirmar senha" style={styles.input} value={confirmarSenha} onChangeText={setConfirmarSenha} secureTextEntry />
