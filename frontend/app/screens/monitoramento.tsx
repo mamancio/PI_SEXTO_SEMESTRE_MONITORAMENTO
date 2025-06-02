@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import Header from '../../components/Header';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 import CameraWrapper from '../../components/CameraWrapper';
@@ -15,28 +15,22 @@ export default function Monitoramento() {
     <View style={{ flex: 1 }}>
       <Header title="Monitoramento" />
 
-      <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
         <CameraWrapper />
-      </View>
 
-      <View style={styles.summaryContainer}>
-        <View style={[styles.card, styles.blueCard]}>
-          <Text style={styles.cardText}>28 Quantidade de Pessoa Identificadas</Text>
+        <View style={styles.summaryContainer}>
+          <View style={[styles.card, styles.blueCard]}>
+            <Text style={styles.cardText}>28 Quantidade de Pessoa Identificadas</Text>
+          </View>          
         </View>
-        <View style={[styles.card, styles.blueCard]}>
-          <Text style={styles.cardText}>1 Total de pessoas ao vivo na tela</Text>
-        </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    justifyContent: 'center',
+  scrollContainer: {
+    paddingBottom: 40,
   },
   summaryContainer: {
     flexDirection: 'row',
